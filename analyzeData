@@ -1,0 +1,278 @@
+Option Explicit
+Public Declare Function timeGetTime Lib "winmm.dll" () As Long
+
+Sub cleanSuffixChar()
+    Dim wordy As String, temp As String, newW As String, filepath As String, linefromfile As String
+    Dim c As Long, r As Long, i As Long, a As Long, lastR As Long, arSize As Byte, arrPos As Long
+    Dim suffList() As String
+    ReDim suffList(10)
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+    Application.ScreenUpdating = False
+    filepath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\sufflist.txt"
+
+    Open filepath For Input As #1
+    Do Until EOF(1)
+        Line Input #1, linefromfile
+        suffList(arrPos) = linefromfile
+        arrPos = arrPos + 1
+    Loop
+
+    For r = 2 To lastR
+        wordy = Sheets("DATA").Range(Cells(r, 9).Address).Value
+        For i = 1 To Len(wordy)
+            temp = Mid$(wordy, i, 1)
+            If temp Like "[A-Z]" Or temp Like "[a-z]" Or temp Like "[0-9]" Then '"[A-Z, a-z, 0-9, ]" allows commas
+                newW = newW + temp
+            Else
+                temp = ""
+                newW = newW + temp
+            End If
+            c = c + 1
+        Next i
+        For a = LBound(suffList) To UBound(suffList)
+            If suffList(a) = newW Then
+                Sheets("DATA").Range(Cells(r, 9).Address).Value = newW
+                GoTo nNextFor
+            Else
+            End If
+        Next a
+        newW = ""
+        Sheets("DATA").Range(Cells(r, 9).Address).Value = newW
+nNextFor:
+    newW = ""
+    Next r
+    Close #1
+    Application.ScreenUpdating = True
+End Sub
+
+Sub deletedups()
+    Application.ScreenUpdating = False
+    Sheets("DATA").Select
+    Dim d As Object, e
+    Set d = CreateObject("scripting.dictionary")
+    For Each e In Intersect(Columns(Sheets("DATA").Range("D1").Column), ActiveSheet.UsedRange)
+        If e.Value <> vbNullString Then
+            If Not d.Exists(e.Value) Then d(e.Value) = 1 Else _
+                e.EntireRow.Delete
+        End If
+    Next
+    Sheets("main").Select
+    Application.ScreenUpdating = True
+End Sub
+
+Sub removeSpaceLicNum()
+    Application.ScreenUpdating = False
+    Dim i As Long, c As Long, lastR As Long
+    Dim pValue As String, tempN As String, newN As String
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+
+    For i = 2 To lastR
+        pValue = Sheets("DATA").Range(Cells(i, 4).Address).Value
+        newN = vbNullString
+        For c = 1 To Len(pValue)
+            tempN = Mid$(pValue, c, 1)
+            If tempN = " " Then
+                newN = newN + ""
+            Else
+                newN = newN + tempN
+            End If
+        Next c
+        Sheets("DATA").Range(Cells(i, 4).Address).Value = newN
+    Next i
+
+    Application.ScreenUpdating = True
+End Sub
+
+Sub formatPhoneNum()
+    Application.ScreenUpdating = False
+    Dim i As Long, r As Long, c As Long, lastR As Long
+    Dim pValue As String, tempN As String, newN As String, newEx As String, tempN2 As String, pValue2 As String
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+
+    For i = 2 To lastR
+        pValue = Sheets("DATA").Range(Cells(i, 18).Address).Value
+        pValue2 = Sheets("DATA").Range(Cells(i, 19).Address).Value
+        newN = vbNullString
+        newEx = vbNullString
+        For r = 1 To Len(pValue)
+            tempN = Mid$(pValue, r, 1)
+            If Not IsNumeric(tempN) Then
+                tempN = ""
+                newN = newN + tempN
+            Else
+                newN = newN + tempN
+            End If
+        Next r
+        If Len(newN) <> 10 Or newN < "1111111111" Then
+            newN = "9999999999"
+            Sheets("DATA").Range(Cells(i, 18).Address).Value = newN
+        Else
+            Sheets("DATA").Range(Cells(i, 18).Address).Value = newN
+        End If
+        For c = 1 To Len(pValue2)
+            tempN2 = Mid$(pValue2, c, 1)
+            If Not IsNumeric(tempN2) Then
+                tempN2 = ""
+                newEx = newEx + tempN2
+            Else
+                newEx = newEx + tempN2
+            End If
+        Next c
+        Sheets("DATA").Range(Cells(i, 19).Address).Value = newEx
+    Next i
+
+    Call removeSpaceLicNum
+    Application.ScreenUpdating = True
+End Sub
+
+Sub cleanPhysName()
+    Dim c As Long, r As Long, i As Long, lastR As Long
+    Dim cName As String, tempN As String, newName As String
+    Application.ScreenUpdating = False
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+
+    For c = 6 To 8 Step 1
+        For r = 2 To lastR
+            cName = Sheets("DATA").Range(Cells(r, c).Address).Value
+            For i = 1 To Len(cName)
+                tempN = Mid$(cName, i, 1)
+                If tempN Like "[A-Z]" Or tempN Like "[a-z]" Or tempN Like " " Then
+                    If tempN = " " Then
+                        If i > 1 Then
+                            If Mid$(cName, i - 1, 1) = " " Then
+                                tempN = vbNullString
+                            Else
+                            End If
+                        Else
+                        End If
+                    Else
+                    End If
+                    newName = newName + tempN
+                Else
+                    tempN = vbNullString
+                    newName = newName + tempN
+                End If
+            Next i
+            Sheets("DATA").Range(Cells(r, c).Address).Value = newName
+            newName = vbNullString
+        Next r
+    Next c
+
+    Call analyzeData.cleanSuffixChar
+    Application.ScreenUpdating = True
+End Sub
+
+Sub cleanZip()
+    Application.ScreenUpdating = False
+    Dim r As Long, lastR As Long
+    Dim cZip As String, nZip As String
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+
+    For r = 2 To lastR
+        cZip = Sheets("DATA").Range(Cells(r, 15).Address).Value
+        If cZip > "" Then
+            If Len(cZip) >= 5 Then
+                If IsNumeric(cZip) Then
+                    nZip = Left$(cZip, 5)
+                Else
+                    nZip = "99999"
+                End If
+            Else
+                nZip = "99999"
+            End If
+        Else
+            nZip = "99999"
+        End If
+        Sheets("DATA").Range(Cells(r, 15).Address).Value = nZip
+    Next r
+
+    Application.ScreenUpdating = True
+End Sub
+
+Sub checkStateCountry()
+    Application.ScreenUpdating = False
+    Dim r As Long, col1 As Long, col2 As Long, col3 As Long, lastR As Long 'column for country 20
+    Dim cCounty As String, cState As String, nCounty As String, nState As String
+    lastR = Sheets("DATA").UsedRange.SpecialCells(xlCellTypeLastCell).row
+    col1 = 16 'countyID
+    col2 = 14 'state
+    col3 = 20 'new state
+    For r = 2 To lastR
+        nCounty = checkFunctions.checkMQAvsEV(Sheets("DATA").Range(Cells(r, 16).Address).Value, "cc")
+        Sheets("DATA").Range(Cells(r, 16).Address).Value = nCounty
+        nState = checkFunctions.checkMQAvsEV(Sheets("DATA").Range(Cells(r, 14).Address).Value, "state")
+        Sheets("DATA").Range(Cells(r, 14).Address).Value = nState
+    Next r
+    Application.ScreenUpdating = True
+End Sub
+
+Sub formatAllCellsTxt()
+    Dim i As Long, lastC As Long
+    Dim sheetName As String
+    sheetName = InputBox("Please enter which sheet is being formatted, DATA or DUMP.", "Format Sheet")
+    If sheetName = "" Then Exit Sub
+    lastC = Sheets(sheetName).UsedRange.SpecialCells(xlCellTypeLastCell).Column
+
+    For i = 1 To lastC
+        Sheets(sheetName).Columns(i).NumberFormat = "@"
+    Next i
+
+End Sub
+
+Sub CheckIsActiveInactive()
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    Dim d As Dictionary
+    Dim i As Long, c As Long, j As Long, lastRold As Long, lastRdump As Long
+    Dim lngStart As Long, lngEnd As Long
+    Dim oldSarray() As String, oldTlic() As String, dumpArray() As String
+    lastRold = Sheets("oldTable").Cells(Rows.count, 4).End(xlUp).row
+    lastRdump = Sheets("DUMP").Cells(Rows.count, 4).End(xlUp).row
+    Set d = New Dictionary
+    ReDim oldSarray(lastRold)
+    ReDim dumpArray(0)
+    lngStart = timeGetTime()
+
+    For i = 2 To UBound(oldSarray)
+        oldSarray(i) = Sheets("oldTable").Cells(i, 4).Value & "|" & i
+    Next i
+
+    For c = 2 To lastRdump
+        d.Add Sheets("DUMP").Cells(c, 4).Value, c
+    Next c
+
+    For j = 2 To UBound(oldSarray)
+        oldTlic = Split(oldSarray(j), "|")
+        If Not d.Exists(oldTlic(0)) Then
+            ReDim Preserve dumpArray(UBound(dumpArray) + 1)
+            dumpArray(UBound(dumpArray)) = oldTlic(1)
+        Else
+        End If
+    Next j
+
+    j = lastRdump + 1
+    For i = LBound(dumpArray) + 1 To UBound(dumpArray)
+        Sheets("DUMP").Cells(j, 4).EntireRow.Value = Sheets("oldTable").Cells(dumpArray(i), 4).EntireRow.Value
+        Sheets("DUMP").Cells(j, 17).Value = "F"
+        j = j + 1
+    Next i
+
+    lngEnd = timeGetTime()
+    Debug.Print "Run Time scripting.dict = " & FormatNumber((lngEnd - lngStart), 0)
+    Debug.Print "Run Time scripting.dict (S)= " & FormatNumber(((lngEnd - lngStart) / 1000), 0)
+
+    Set d = Nothing
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+End Sub
+
+Sub clearDataDump()
+    Application.ScreenUpdating = False
+    Sheets("DATA").UsedRange.Value = ""
+    Sheets("DUMP").UsedRange.Value = ""
+    Sheets("tempEmail").UsedRange.Value = ""
+    Sheets("oldTable").UsedRange.Value = ""
+    Application.ScreenUpdating = True
+End Sub
