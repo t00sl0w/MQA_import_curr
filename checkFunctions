@@ -1,0 +1,71 @@
+Option Explicit
+
+Public Function checkMQAvsEV(mqaCCvalue As String, CCorState As String) As String
+    'when calling define CCorState based on which column needs to be referred to
+    Dim i, cMQA, cEV, lastR As Long
+    Dim mqaTemp, eVreturn As String
+
+    If CCorState = "State" Or CCorState = "state" Then
+        lastR = 77
+        cMQA = 5
+        cEV = 6
+    ElseIf CCorState = "CC" Or CCorState = "County Code" Or CCorState = "county code" Or CCorState = "cc" Then
+        lastR = 74
+        cMQA = 1
+        cEV = 2
+    Else
+        MsgBox ("Incorrect CCorState param, please reenter")
+        Exit Function
+    End If
+
+    For i = 2 To lastR
+        mqaTemp = Sheets("tables").Range(Cells(i, cMQA).Address).Value
+        eVreturn = Sheets("tables").Range(Cells(i, cEV).Address).Value
+        If mqaTemp = mqaCCvalue Then
+            checkMQAvsEV = eVreturn
+            Exit For
+        Else
+        End If
+    Next i
+
+    If checkMQAvsEV = vbNullString Then
+        checkMQAvsEV = vbNullString
+    End If
+
+End Function
+
+Public Function runRow(oldCol As Long, ByVal newCol As Long, rowL As Long, tNull As String) ' As Byte
+    Dim row As Long
+    Dim tValue As String, holdCol() As String
+    ReDim holdCol(rowL)
+
+    For row = 2 To rowL
+        If tNull = "null" Then
+            tValue = vbNullString
+        Else
+            tValue = Sheets("DATA").Range(Cells(row, oldCol).Address).Value
+        End If
+            holdCol(row - 2) = tValue
+    Next row
+    For row = 2 To UBound(holdCol)
+        Sheets("DUMP").Range(Cells(row, newCol).Address).Value = holdCol(row - 2)
+    Next row
+    'runRow = 1
+
+End Function
+
+Public Function emailCheck(cLic As String) As String
+    Dim i As Long, lastRo As Long
+    Dim tempE As String
+    lastRo = Sheets("tempEmail").UsedRange.SpecialCells(xlCellTypeLastCell).row
+    
+    For i = 2 To lastRo
+        tempE = Sheets("tempEmail").Range(Cells(i, 15).Address).Value
+        If Sheets("tempEmail").Range(Cells(i, 4).Address).Value = cLic Then
+            emailCheck = tempE
+            Exit For
+        Else
+            emailCheck = vbNullString
+        End If
+    Next i
+End Function
