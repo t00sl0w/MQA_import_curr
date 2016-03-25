@@ -1,0 +1,120 @@
+Option Explicit
+
+Sub ImportTextFile()
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    Dim filepath As String, LineItems() As String, linefromfile As String, imChoice As String
+    Dim row_number As Long
+
+    imChoice = InputBox("Please choose import type, MQAdata, physEmail or eVitalsDump", "Import Type")
+    If imChoice = "" Then Exit Sub
+    If LCase(imChoice) Like "mqadata" Then
+        ReDim LineItems(19)
+        filepath = InputBox("Please input the filepath of the file to be imported, in its entirety. DRIVE:\xxx\yyy\ggg.txt", "MQA Data Import location")
+        If filepath = "" Then Exit Sub
+        'FilePath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\SSS-1619961 Related to DA-9913.txt"
+        Open filepath For Input As #1
+        row_number = 1
+
+        Do Until EOF(1)
+            Line Input #1, linefromfile
+            LineItems = Split(linefromfile, "|")
+            Sheets("DATA").Range(Cells(row_number, 1).Address).Value = LineItems(0)
+            Sheets("DATA").Range(Cells(row_number, 2).Address).Value = LineItems(1)
+            Sheets("DATA").Range(Cells(row_number, 3).Address).Value = LineItems(2)
+            Sheets("DATA").Range(Cells(row_number, 4).Address).Value = LineItems(3)
+            Sheets("DATA").Range(Cells(row_number, 5).Address).Value = LineItems(4)
+            Sheets("DATA").Range(Cells(row_number, 6).Address).Value = LineItems(5)
+            Sheets("DATA").Range(Cells(row_number, 7).Address).Value = LineItems(6)
+            Sheets("DATA").Range(Cells(row_number, 8).Address).Value = LineItems(7)
+            Sheets("DATA").Range(Cells(row_number, 9).Address).Value = LineItems(8)
+            Sheets("DATA").Range(Cells(row_number, 10).Address).Value = LineItems(9)
+            Sheets("DATA").Range(Cells(row_number, 11).Address).Value = LineItems(10)
+            Sheets("DATA").Range(Cells(row_number, 12).Address).Value = LineItems(11)
+            Sheets("DATA").Range(Cells(row_number, 13).Address).Value = LineItems(12)
+            Sheets("DATA").Range(Cells(row_number, 14).Address).Value = LineItems(13)
+            Sheets("DATA").Range(Cells(row_number, 15).Address).Value = LineItems(14)
+            Sheets("DATA").Range(Cells(row_number, 16).Address).Value = LineItems(15)
+            Sheets("DATA").Range(Cells(row_number, 17).Address).Value = LineItems(16)
+            Sheets("DATA").Range(Cells(row_number, 18).Address).Value = LineItems(17)
+            Sheets("DATA").Range(Cells(row_number, 19).Address).Value = LineItems(18)
+            row_number = row_number + 1
+        Loop
+    ElseIf LCase(imChoice) Like "physemail" Then
+        ReDim LineItems(21)
+        filepath = InputBox("Please input the filepath of the file to be imported, in its entirety. DRIVE:\xxx\yyy\ggg.txt", "Phys Email Import location")
+        If filepath = "" Then Exit Sub
+        'FilePath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\PHYS_EMAIL_dump.txt"
+        Open filepath For Input As #1
+        row_number = 1
+
+        Do Until EOF(1)
+            Line Input #1, linefromfile
+            LineItems = Split(linefromfile, "|")
+            Sheets("tempEmail").Range(Cells(row_number, 1).Address).Value = LineItems(0)
+            Sheets("tempEmail").Range(Cells(row_number, 2).Address).Value = LineItems(1)
+            Sheets("tempEmail").Range(Cells(row_number, 3).Address).Value = LineItems(2)
+            Sheets("tempEmail").Range(Cells(row_number, 4).Address).Value = LineItems(3)
+            Sheets("tempEmail").Range(Cells(row_number, 5).Address).Value = LineItems(4)
+            Sheets("tempEmail").Range(Cells(row_number, 6).Address).Value = LineItems(5)
+            Sheets("tempEmail").Range(Cells(row_number, 7).Address).Value = LineItems(6)
+            Sheets("tempEmail").Range(Cells(row_number, 8).Address).Value = LineItems(7)
+            Sheets("tempEmail").Range(Cells(row_number, 9).Address).Value = LineItems(8)
+            Sheets("tempEmail").Range(Cells(row_number, 10).Address).Value = LineItems(9)
+            Sheets("tempEmail").Range(Cells(row_number, 11).Address).Value = LineItems(10)
+            Sheets("tempEmail").Range(Cells(row_number, 12).Address).Value = LineItems(11)
+            Sheets("tempEmail").Range(Cells(row_number, 13).Address).Value = LineItems(12)
+            Sheets("tempEmail").Range(Cells(row_number, 14).Address).Value = LineItems(13)
+            Sheets("tempEmail").Range(Cells(row_number, 15).Address).Value = LineItems(14)
+            Sheets("tempEmail").Range(Cells(row_number, 16).Address).Value = LineItems(15)
+            Sheets("tempEmail").Range(Cells(row_number, 17).Address).Value = LineItems(17)
+            Sheets("tempEmail").Range(Cells(row_number, 18).Address).Value = LineItems(19)
+            Sheets("tempEmail").Range(Cells(row_number, 19).Address).Value = LineItems(20)
+            Sheets("tempEmail").Range(Cells(row_number, 20).Address).Value = LineItems(21)
+            row_number = row_number + 1
+        Loop
+    ElseIf LCase(imChoice) Like "evitalsdump" Then
+        ReDim LineItems(20)
+        filepath = InputBox("Please input the filepath of the file to be imported, in its entirety. DRIVE:\xxx\yyy\ggg.txt", "eVitals Dump Location")
+        If filepath = "" Then Exit Sub
+        'FilePath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\"
+        Open filepath For Input As #1
+        row_number = 1
+
+        Do Until EOF(1)
+            Line Input #1, linefromfile
+            LineItems = Split(linefromfile, "|")
+            Sheets("oldTable").Range(Cells(row_number, 1).Address).Value = LineItems(0)
+            Sheets("oldTable").Range(Cells(row_number, 2).Address).Value = LineItems(1)
+            Sheets("oldTable").Range(Cells(row_number, 3).Address).Value = LineItems(2)
+            Sheets("oldTable").Range(Cells(row_number, 4).Address).Value = LineItems(3)
+            Sheets("oldTable").Range(Cells(row_number, 5).Address).Value = LineItems(4)
+            Sheets("oldTable").Range(Cells(row_number, 6).Address).Value = LineItems(5)
+            Sheets("oldTable").Range(Cells(row_number, 7).Address).Value = LineItems(6)
+            Sheets("oldTable").Range(Cells(row_number, 8).Address).Value = LineItems(7)
+            Sheets("oldTable").Range(Cells(row_number, 9).Address).Value = LineItems(8)
+            Sheets("oldTable").Range(Cells(row_number, 10).Address).Value = LineItems(9)
+            Sheets("oldTable").Range(Cells(row_number, 11).Address).Value = LineItems(10)
+            Sheets("oldTable").Range(Cells(row_number, 12).Address).Value = LineItems(11)
+            Sheets("oldTable").Range(Cells(row_number, 13).Address).Value = LineItems(12)
+            Sheets("oldTable").Range(Cells(row_number, 14).Address).Value = LineItems(13)
+            Sheets("oldTable").Range(Cells(row_number, 15).Address).Value = LineItems(14)
+            Sheets("oldTable").Range(Cells(row_number, 16).Address).Value = LineItems(15)
+            Sheets("oldTable").Range(Cells(row_number, 17).Address).Value = LineItems(17)
+            Sheets("oldTable").Range(Cells(row_number, 18).Address).Value = LineItems(19)
+            Sheets("oldTable").Range(Cells(row_number, 19).Address).Value = LineItems(20)
+            Sheets("oldTable").Range(Cells(row_number, 20).Address).Value = LineItems(21)
+            row_number = row_number + 1
+        Loop
+    Else: End If
+
+    Close #1
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
+End Sub
+
+Sub testy()
+
+End Sub
