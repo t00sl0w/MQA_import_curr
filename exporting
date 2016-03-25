@@ -1,0 +1,170 @@
+Option Explicit
+
+Sub exportData()
+    Dim filepath As String, CellData() As String, writeMe As String
+    Dim r, c, lastR, i, lastC As Long
+    ReDim CellData(20)
+    lastR = Sheets("DUMP").UsedRange.SpecialCells(xlCellTypeLastCell).row
+    lastC = Sheets("DUMP").UsedRange.SpecialCells(xlCellTypeLastCell).Column
+    filepath = InputBox("Please enter the filepath and filename for the dump file in its entirety. DRIVE:\xxx\ggg\hhh.txt", "Dump Location")
+    If filepath = "" Then Exit Sub
+    'FilePath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\test2.txt"
+    Open filepath For Output As #2
+
+    For r = 1 To lastR
+        c = 1
+        If Sheets("DUMP").Range(Cells(1, 1).Address).Value = "" Then
+            Exit For
+        Else
+            For c = 1 To lastC
+                CellData(c - 1) = Sheets("DUMP").Range(Cells(r, c).Address).Value
+            Next c
+            writeMe = CellData(0) & "|" & CellData(1) & "|" & CellData(2) & "|" & CellData(3) & "|" & CellData(4) & _
+                "|" & CellData(5) & "|" & CellData(6) & "|" & CellData(7) & "|" & CellData(8) & "|" & CellData(9) & _
+                "|" & CellData(10) & "|" & CellData(11) & "|" & CellData(12) & "|" & CellData(13) & "|" & CellData(14) & _
+                "|" & CellData(15) & "|" & CellData(16) & "|" & CellData(17) & "|" & CellData(18) & "|" & CellData(19) & _
+                "|" & CellData(20)
+            Print #2, writeMe
+        End If
+    Next r
+
+fastForward:
+    Close #2
+
+End Sub
+
+Sub MoveToDump()
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    Dim holdCol() As String, colType() As String
+    Dim filepath As String, LineItems As String, linefromfile As String, tValue As String, nValue As String, tHold As String
+    Dim tName As String
+    Dim r As Long, c As Long, lastR As Long, i As Long, lastC As Long, arrPos As Long
+    'Dim funcR As Byte
+    lastR = Sheets("DATA").Cells(Rows.count, 4).End(xlUp).row
+    ReDim colType(23)
+    ReDim holdCol(lastR)
+    filepath = "M:\EDRS\Table Maintenance\Physicians Table updates\new_dev\dumpDataFields.txt"
+    Open filepath For Input As #1
+
+    On Error Resume Next
+
+    Do Until EOF(1)
+        Line Input #1, linefromfile
+        LineItems = linefromfile
+        colType(arrPos) = linefromfile
+        arrPos = arrPos + 1
+    Loop
+
+    For i = LBound(colType) To UBound(colType)
+        Select Case colType(i)
+            Case Is = "PHYSICIANID"
+                Application.StatusBar = "Moving Physician ID"
+                Sheets("DUMP").Range("A1").Value = "PHYSICIANID"
+                Call checkFunctions.runRow(0, 1, lastR, "null") 'funcR = checkFunctions.runRow(0, 1, lastR, "null")
+            Case Is = "COUNTYID"
+                Application.StatusBar = "Moving County ID"
+                Sheets("DUMP").Range("B1").Value = "COUNTYID"
+                Call checkFunctions.runRow(16, 2, lastR, "") 'funcR = checkFunctions.runRow(16, 2, lastR, "")
+            Case Is = "TITLEID"
+                Application.StatusBar = "Moving Title ID"
+                Sheets("DUMP").Range("C1").Value = "TITLEID"
+                Call checkFunctions.runRow(1, 3, lastR, "") 'funcR = checkFunctions.runRow(1, 3, lastR, "")
+            Case Is = "PHYS_LICENSE"
+                Application.StatusBar = "Moving Phys License"
+                Sheets("DUMP").Range("D1").Value = "PHYS_LICENSE"
+                Call checkFunctions.runRow(4, 4, lastR, "") 'funcR = checkFunctions.runRow(4, 4, lastR, "")
+            Case Is = "PHYS_FIRST_NAME"
+                Application.StatusBar = "Moving Phys First Name"
+                Sheets("DUMP").Range("E1").Value = "PHYS_FIRST_NAME"
+                Call checkFunctions.runRow(7, 5, lastR, "") 'funcR = checkFunctions.runRow(7, 5, lastR, "")
+            Case Is = "PHYS_MIDDLE_NAME"
+                Application.StatusBar = "Moving Phys Middle Name"
+                Sheets("DUMP").Range("F1").Value = "PHYS_MIDDLE_NAME"
+                Call checkFunctions.runRow(8, 6, lastR, "") 'funcR = checkFunctions.runRow(8, 6, lastR, "")
+            Case Is = "PHYS_LAST_NAME"
+                Application.StatusBar = "Moving Phys Last Name"
+                Sheets("DUMP").Range("G1").Value = "PHYS_LAST_NAME"
+                Call checkFunctions.runRow(6, 7, lastR, "") 'funcR = checkFunctions.runRow(6, 7, lastR, "")
+            Case Is = "PHYS_SUFFIX"
+                Application.StatusBar = "Moving Phys Suffix"
+                Sheets("DUMP").Range("H1").Value = "PHYS_SUFFIX"
+                Call checkFunctions.runRow(9, 8, lastR, "") 'funcR = checkFunctions.runRow(9, 8, lastR, "")
+            Case Is = "PHYS_ZIP"
+                Application.StatusBar = "Moving Phys Zip"
+                Sheets("DUMP").Range("I1").Value = "PHYS_ZIP"
+                Call checkFunctions.runRow(15, 9, lastR, "") 'funcR = checkFunctions.runRow(15, 9, lastR, "")
+            Case Is = "PHYS_ADDR1"
+                Application.StatusBar = "Moving Phys ADDR1"
+                Sheets("DUMP").Range("J1").Value = "PHYS_ADDR1"
+                Call checkFunctions.runRow(11, 10, lastR, "") 'funcR = checkFunctions.runRow(11, 10, lastR, "")
+            Case Is = "PHYS_ADDR2"
+                Application.StatusBar = "Moving Phys ADDR2"
+                Sheets("DUMP").Range("K1").Value = "PHYS_ADDR2"
+                Call checkFunctions.runRow(12, 11, lastR, "") 'funcR = checkFunctions.runRow(12, 11, lastR, "")
+            Case Is = "PHYS_PHONE"
+                Application.StatusBar = "Moving Phys Phone"
+                Sheets("DUMP").Range("L1").Value = "PHYS_PHONE"
+                Call checkFunctions.runRow(18, 12, lastR, "") 'funcR = checkFunctions.runRow(18, 12, lastR, "")
+            Case Is = "PHYS_EXTENSION"
+                Application.StatusBar = "Moving Phys Extension"
+                Sheets("DUMP").Range("M1").Value = "PHYS_EXTENSION"
+                Call checkFunctions.runRow(19, 13, lastR, "") 'funcR = checkFunctions.runRow(19, 13, lastR, "")
+            Case Is = "PHYS_FAX"
+                Application.StatusBar = "Moving Phys Fax"
+                Sheets("DUMP").Range("N1").Value = "PHYS_FAX"
+                For r = 2 To lastR
+                    Sheets("DUMP").Range(Cells(r, 14).Address).Value = "9999999999"
+                Next r
+            Case Is = "PHYS_EMAIL"
+                Application.StatusBar = "Moving Phys Email"
+                Sheets("DUMP").Range("O1").Value = "PHYS_EMAIL"
+                For r = 2 To lastR
+                    tHold = Sheets("DATA").Range(Cells(r, 4).Address).Value
+                    Sheets("DUMP").Range(Cells(r, 15).Address).Value = checkFunctions.emailCheck(tHold)
+                Next r
+            Case Is = "PHYS_TITLE"
+                Application.StatusBar = "Moving Phys Title"
+                Sheets("DUMP").Range("P1").Value = "PHYS_TITLE"
+                Call checkFunctions.runRow(2, 16, lastR, "") 'funcR = checkFunctions.runRow(2, 16, lastR, "")
+            Case Is = "ISACTIVE"
+                Application.StatusBar = "Moving IsActive"
+                Sheets("DUMP").Range("Q1").Value = "ISACTIVE"
+                For r = 2 To lastR
+                    Sheets("DUMP").Range(Cells(r, 17).Address).Value = "T"
+                Next r
+            Case Is = "PHYS_FML"
+                Application.StatusBar = "Moving Phys FML"
+                Sheets("DUMP").Range("R1").Value = "PHYS_FML"
+                For r = 2 To lastR
+                    tName = Sheets("DATA").Range(Cells(r, 7).Address).Value
+                    If Sheets("DATA").Range(Cells(r, 8).Address).Value > "" Then
+                        tName = tName + " " + Sheets("DATA").Range(Cells(r, 8).Address).Value
+                    Else
+                    End If
+                    tName = tName + " " + Sheets("DATA").Range(Cells(r, 6).Address).Value
+                    Sheets("DUMP").Range(Cells(r, 18).Address).Value = tName
+                Next r
+            Case Is = "PHYS_STATE"
+                Application.StatusBar = "Moving Phys State"
+                Sheets("DUMP").Range("S1").Value = "PHYS_STATE"
+                Call checkFunctions.runRow(14, 19, lastR, "") 'funcR = checkFunctions.runRow(14, 19, lastR, "")
+            Case Is = "PHYS_CITY"
+                Application.StatusBar = "Moving Phys City"
+                Sheets("DUMP").Range("T1").Value = "PHYS_CITY"
+                Call checkFunctions.runRow(13, 20, lastR, "") 'funcR = checkFunctions.runRow(13, 20, lastR, "")
+            Case Is = "PHYS_COUNTY"
+                Application.StatusBar = "Moving Phys County"
+                Sheets("DUMP").Range("U1").Value = "PHYS_COUNTY"
+                Call checkFunctions.runRow(17, 21, lastR, "") 'funcR = checkFunctions.runRow(17, 21, lastR, "")
+        End Select
+        Application.StatusBar = False
+    Next i
+
+    Close #1
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
+    Application.StatusBar = False
+    Application.ScreenUpdating = True
+End Sub
